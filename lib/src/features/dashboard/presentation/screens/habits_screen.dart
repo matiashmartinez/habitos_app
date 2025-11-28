@@ -1,12 +1,19 @@
-import 'package:flutter/material.dart';
+class Habit {
+  final String id;
+  final String title;
+  final bool completed;
 
-class HabitsScreen extends StatelessWidget {
-  const HabitsScreen({super.key});
+  Habit({
+    required this.id,
+    required this.title,
+    this.completed = false,
+  });
 
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text("Hábitos"),
+  Habit copyWith({String? id, String? title, bool? completed}) {
+    return Habit(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      completed: completed ?? this.completed,
     );
   }
 }

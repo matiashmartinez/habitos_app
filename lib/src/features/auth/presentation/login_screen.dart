@@ -10,12 +10,10 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  
 
   void _submit() {
     if (formKey.currentState!.validate()) {
@@ -36,55 +34,55 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       );
     }
 
-return Scaffold(
-  appBar: AppBar(title: const Text("Login")),
-  body: Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: Form(
-      key: formKey,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          if (authState is AuthUnauthenticated && authState.message != null)
-            Text(
-              authState.message!,
-              style: const TextStyle(color: Colors.red),
-            ),
-          const SizedBox(height: 10),
+    return Scaffold(
+      appBar: AppBar(title: const Text("Login")),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (authState is AuthUnauthenticated && authState.message != null)
+                Text(
+                  authState.message!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              const SizedBox(height: 10),
 
-          // EMAIL
-          TextFormField(
-            controller: emailController,
-            decoration: const InputDecoration(labelText: "Email"),
-            autofocus: true,
-            keyboardType: TextInputType.emailAddress,
-            onFieldSubmitted: (_) => _submit(),
-            validator: (value) =>
-                value!.isEmpty ? "Ingrese un email" : null,
+              // EMAIL
+              TextFormField(
+                controller: emailController,
+                decoration: const InputDecoration(labelText: "Email"),
+                autofocus: true,
+                keyboardType: TextInputType.emailAddress,
+                onFieldSubmitted: (_) => _submit(),
+                validator: (value) =>
+                    value!.isEmpty ? "Ingrese un email" : null,
+              ),
+
+              const SizedBox(height: 12),
+
+              // PASSWORD
+              TextFormField(
+                controller: passwordController,
+                decoration: const InputDecoration(labelText: "Password"),
+                obscureText: true,
+                onFieldSubmitted: (_) => _submit(),
+                validator: (value) =>
+                    value!.isEmpty ? "Ingrese una contraseña" : null,
+              ),
+
+              const SizedBox(height: 20),
+
+              ElevatedButton(
+                onPressed: _submit,
+                child: const Text("Ingresar"),
+              ),
+            ],
           ),
-
-          const SizedBox(height: 12),
-
-          // PASSWORD
-          TextFormField(
-            controller: passwordController,
-            decoration: const InputDecoration(labelText: "Password"),
-            obscureText: true,
-            onFieldSubmitted: (_) => _submit(),
-            validator: (value) =>
-                value!.isEmpty ? "Ingrese una contraseña" : null,
-          ),
-
-          const SizedBox(height: 20),
-
-          ElevatedButton(
-            onPressed: _submit,
-            child: const Text("Ingresar"),
-          ),
-        ],
+        ),
       ),
-    ),
-  ),
-);
+    );
   }
 }
