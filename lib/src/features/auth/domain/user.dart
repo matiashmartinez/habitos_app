@@ -1,13 +1,13 @@
 /// Entidad User (domain)
 class User {
-  final String id;
+  final String userId;
   final String email;
 
   const User({
-    required this.id,
+    required this.userId,
     required this.email,
   });
 
   @override
-  String toString() => 'User(id: $id, email: $email)';
+  String toString() => 'User(id: $userId, email: $email)';
 }

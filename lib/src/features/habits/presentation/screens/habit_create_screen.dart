@@ -14,15 +14,18 @@ class _HabitCreateScreenState extends ConsumerState<HabitCreateScreen> {
   final nameCtrl = TextEditingController();
   final descCtrl = TextEditingController();
 
-  void _save() {
-    if (formKey.currentState!.validate()) {
-      ref.read(habitNotifierProvider.notifier).addHabit(
-            nameCtrl.text.trim(),
-            descCtrl.text.trim(),
-          );
-      if (mounted) Navigator.pop(context);
-    }
+void _save() {
+  if (formKey.currentState!.validate()) {
+    final userId = 'demo-user'; // o currentUserId si tienes autenticación
+    ref.read(habitNotifierProvider.notifier).addHabit(
+          userId,
+          nameCtrl.text.trim(),
+          descCtrl.text.trim(),
+        );
+    if (mounted) Navigator.pop(context);
   }
+}
+
 
   @override
   Widget build(BuildContext context) {

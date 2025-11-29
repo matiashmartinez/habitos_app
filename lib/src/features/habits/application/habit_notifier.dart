@@ -147,19 +147,19 @@ class HabitNotifier extends Notifier<HabitState> {
     }
   }
 
-  Future<void> addHabit(String title, String description) async {
-    try {
-      await _repository.addHabit(title, description);
-      await _load();
-    } catch (e) {
-      if (kDebugMode) debugPrint(e.toString());
-      state = HabitError('Unable to add habit');
-    }
+Future<void> addHabit(String userId, String title, String description) async {
+  try {
+    await _repository.addHabit(userId, title, description);
+    await _load(); // recarga la lista de hábitos
+  } catch (e) {
+    if (kDebugMode) debugPrint(e.toString());
+    state = HabitError('Unable to add habit');
   }
+}
 
   Future<void> updateHabit(String id, String newTitle, String newDescription) async {
     try {
-      final index = _repository.habits.indexWhere((h) => h.id == id);
+     final index = _repository.habits.indexWhere((h) => h.id == id);
       if (index != -1) {
         final habit = _repository.habits[index];
         _repository.habits[index] = habit.copyWith(
@@ -176,7 +176,7 @@ class HabitNotifier extends Notifier<HabitState> {
 
   Future<void> toggleHabit(String id) async {
     try {
-      final index = _repository.habits.indexWhere((h) => h.id == id);
+      final index = _repository.habits.indexWhere((h) => h.userId == id);
       if (index != -1) {
         final habit = _repository.habits[index];
         final completedDates = List<DateTime>.from(habit.completedDates);

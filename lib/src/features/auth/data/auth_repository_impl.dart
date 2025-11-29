@@ -11,7 +11,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<User> login(String email, String password) async {
     final data = await _api.login(email, password);
     return User(
-      id: data['id'] as String,
+      userId: data['id'] as String,
       email: data['email'] as String,
     );
   }

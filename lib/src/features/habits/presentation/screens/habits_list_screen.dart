@@ -25,7 +25,7 @@ class HabitsScreen extends ConsumerWidget {
                         final habit = state.habits[index];
 
                         return Dismissible(
-                          key: Key(habit.id),
+                          key: Key(habit.userId),
                           background: Container(
                             color: Colors.green,
                             alignment: Alignment.centerLeft,
@@ -69,7 +69,7 @@ class HabitsScreen extends ConsumerWidget {
                           },
                           onDismissed: (direction) {
                             if (direction == DismissDirection.endToStart) {
-                              notifier.deleteHabit(habit.id);
+                              notifier.deleteHabit(habit.userId);
                             }
                           },
                           child: ListTile(
@@ -96,7 +96,7 @@ class HabitsScreen extends ConsumerWidget {
                             leading: Checkbox(
                               value: habit.completed,
                               onChanged: (_) =>
-                                  notifier.toggleHabit(habit.id),
+                                  notifier.toggleHabit(habit.userId),
                             ),
                           ),
                         );
@@ -137,13 +137,17 @@ class HabitsScreen extends ConsumerWidget {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              notifier.addHabit(
-                  titleController.text, descriptionController.text);
-              Navigator.pop(context);
-            },
-            child: const Text('Add'),
-          ),
+  onPressed: () {
+    final userId = 'demo-user'; // mismo userId temporal
+    notifier.addHabit(
+      userId,
+      titleController.text.trim(),
+      descriptionController.text.trim(),
+    );
+    Navigator.pop(context);
+  },
+  child: const Text('Add'),
+),
         ],
       ),
     );
@@ -179,8 +183,8 @@ class HabitsScreen extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () {
-              notifier.updateHabit(
-                  habit.id, titleController.text, descriptionController.text);
+              notifier.updateHabit(habit.userId, titleController.text,
+                  descriptionController.text);
               Navigator.pop(context);
             },
             child: const Text('Save'),

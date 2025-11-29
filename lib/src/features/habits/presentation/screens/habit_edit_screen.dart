@@ -27,7 +27,7 @@ class _HabitEditScreenState extends ConsumerState<HabitEditScreen> {
   void _save() {
     if (formKey.currentState!.validate()) {
       ref.read(habitNotifierProvider.notifier).updateHabit(
-            widget.habit.id,
+            widget.habit.userId,
             nameCtrl.text.trim(),
             descCtrl.text.trim(),
           );

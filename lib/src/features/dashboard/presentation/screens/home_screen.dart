@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -145,7 +147,7 @@ class HomeScreen extends ConsumerWidget {
         : habit.createdAt;
 
     return Dismissible(
-      key: Key(habit.id),
+      key: Key(habit.userId),
       background: Container(
         color: Colors.blue,
         alignment: Alignment.centerLeft,
@@ -186,7 +188,7 @@ class HomeScreen extends ConsumerWidget {
             ),
           );
           if (confirmed == true) {
-            ref.read(habitNotifierProvider.notifier).deleteHabit(habit.id);
+            ref.read(habitNotifierProvider.notifier).deleteHabit(habit.userId);
           }
           return confirmed;
         }
@@ -198,7 +200,7 @@ class HomeScreen extends ConsumerWidget {
           leading: Checkbox(
             value: habit.completed,
             onChanged: (_) {
-              ref.read(habitNotifierProvider.notifier).toggleHabit(habit.id);
+              ref.read(habitNotifierProvider.notifier).toggleHabit(habit.userId);
             },
           ),
           title: Text(
