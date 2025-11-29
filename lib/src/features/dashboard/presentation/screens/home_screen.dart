@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+
 import '../../../habits/application/habit_notifier.dart';
 import '../../../habits/domain/habit_state.dart';
 import '../../../habits/presentation/screens/habit_create_screen.dart';
@@ -22,9 +23,6 @@ class HomeScreen extends ConsumerWidget {
       final pendingHabits = state.habits.where((h) => !h.completed).toList();
       final completedHabits = state.habits.where((h) => h.completed).toList();
 
-      final completedCount = completedHabits.length;
-      final pendingCount = pendingHabits.length;
-
       return Scaffold(
         floatingActionButton: FloatingActionButton(
           onPressed: () {
@@ -37,55 +35,55 @@ class HomeScreen extends ConsumerWidget {
         ),
         body: Column(
           children: [
-            // Gráfico de pastel
+            // 📊 Gráfico PieChart con mejor altura y espacio
             Padding(
               padding: const EdgeInsets.all(16),
               child: SizedBox(
-                height: 180,
+                height: 220,
                 child: PieChart(
                   PieChartData(
                     sections: [
                       PieChartSectionData(
-                        value: completedCount.toDouble(),
+                        value: completedHabits.length.toDouble(),
                         color: Colors.green,
                         title: 'Completados',
-                        radius: 50,
+                        radius: 45,
                         titleStyle: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       PieChartSectionData(
-                        value: pendingCount.toDouble(),
+                        value: pendingHabits.length.toDouble(),
                         color: Colors.red,
                         title: 'Pendientes',
-                        radius: 50,
+                        radius: 45,
                         titleStyle: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
-                    sectionsSpace: 2,
-                    centerSpaceRadius: 30,
+                    sectionsSpace: 4,
+                    centerSpaceRadius: 40,
                   ),
                 ),
               ),
             ),
-            // Contadores
+            // 💳 Contadores
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _counterCard("Pendientes", pendingCount, Colors.red),
-                  _counterCard("Completados", completedCount, Colors.green),
+                  _counterCard("Pendientes", pendingHabits.length, Colors.red),
+                  _counterCard("Completados", completedHabits.length, Colors.green),
                   _counterCard("Total", state.habits.length, Colors.blue),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-            // Lista de hábitos
+            // 📝 Lista de hábitos con swipe
             Expanded(
               child: ListView(
                 children: [
@@ -94,8 +92,7 @@ class HomeScreen extends ConsumerWidget {
                       padding: EdgeInsets.all(8.0),
                       child: Text(
                         'Pendientes',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                     ),
                   ...pendingHabits.map((habit) => _habitTile(context, ref, habit)),
@@ -104,8 +101,7 @@ class HomeScreen extends ConsumerWidget {
                       padding: EdgeInsets.all(8.0),
                       child: Text(
                         'Completados',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                     ),
                   ...completedHabits.map((habit) => _habitTile(context, ref, habit)),
@@ -142,49 +138,95 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
+  // 🌟 Cada hábito ahora es un Dismissible para swipe
   Widget _habitTile(BuildContext context, WidgetRef ref, Habit habit) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: ListTile(
-        title: Text(
-          habit.title,
-          style: TextStyle(
-            decoration: habit.completed ? TextDecoration.lineThrough : null,
-            fontWeight: FontWeight.bold,
+    final lastModified = habit.completedDates.isNotEmpty
+        ? habit.completedDates.last
+        : habit.createdAt;
+
+    return Dismissible(
+      key: Key(habit.id),
+      background: Container(
+        color: Colors.blue,
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: const Icon(Icons.edit, color: Colors.white),
+      ),
+      secondaryBackground: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      confirmDismiss: (direction) async {
+        if (direction == DismissDirection.startToEnd) {
+          // Swipe a la derecha → Editar
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => HabitEditScreen(habit: habit)),
+          );
+          return false; // No eliminar
+        } else if (direction == DismissDirection.endToStart) {
+          // Swipe a la izquierda → Eliminar
+          final confirmed = await showDialog<bool>(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: const Text('Eliminar hábito'),
+              content: const Text('¿Estás seguro de eliminar este hábito?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Eliminar'),
+                ),
+              ],
+            ),
+          );
+          if (confirmed == true) {
+            ref.read(habitNotifierProvider.notifier).deleteHabit(habit.id);
+          }
+          return confirmed;
+        }
+        return false;
+      },
+      child: Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        child: ListTile(
+          leading: Checkbox(
+            value: habit.completed,
+            onChanged: (_) {
+              ref.read(habitNotifierProvider.notifier).toggleHabit(habit.id);
+            },
           ),
-        ),
-        subtitle: habit.description.isNotEmpty
-            ? Text(
-                habit.description,
-                style: const TextStyle(fontSize: 14, color: Colors.black54),
-              )
-            : null,
-        leading: Checkbox(
-          value: habit.completed,
-          onChanged: (_) {
-            ref.read(habitNotifierProvider.notifier).toggleHabit(habit.id);
-          },
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => HabitEditScreen(habit: habit)),
-                );
-              },
+          title: Text(
+            habit.title,
+            style: TextStyle(
+              decoration: habit.completed ? TextDecoration.lineThrough : null,
+              fontWeight: FontWeight.bold,
             ),
-            IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () {
-                ref.read(habitNotifierProvider.notifier).deleteHabit(habit.id);
-              },
-            ),
-          ],
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (habit.description.isNotEmpty)
+                Text(
+                  habit.description,
+                  style: const TextStyle(fontSize: 14, color: Colors.black54),
+                ),
+              const SizedBox(height: 4),
+              Text(
+                'Creado: ${habit.createdAt.day}/${habit.createdAt.month}/${habit.createdAt.year}',
+                style: const TextStyle(fontSize: 12, color: Colors.black45),
+              ),
+              Text(
+                'Última modificación: ${lastModified.day}/${lastModified.month}/${lastModified.year}',
+                style: const TextStyle(fontSize: 12, color: Colors.black45),
+              ),
+            ],
+          ),
         ),
       ),
     );

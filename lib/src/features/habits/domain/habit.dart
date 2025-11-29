@@ -1,15 +1,15 @@
 class Habit {
   final String id;
   final String title;
-  final String description; // ← agregar
+  final String description; // descripción del hábito
   final bool completed;
   final DateTime createdAt;
-  final List<DateTime> completedDates;
+  final List<DateTime> completedDates; // historial de completados
 
   Habit({
     required this.id,
     required this.title,
-    this.description = "", // valor por defecto
+    this.description = "",
     this.completed = false,
     DateTime? createdAt,
     List<DateTime>? completedDates,
@@ -19,7 +19,7 @@ class Habit {
   Habit copyWith({
     String? id,
     String? title,
-    String? description, // ← agregar
+    String? description,
     bool? completed,
     List<DateTime>? completedDates,
   }) {

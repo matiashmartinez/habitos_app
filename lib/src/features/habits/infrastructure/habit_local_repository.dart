@@ -7,7 +7,7 @@ class HabitLocalRepository {
 
   Future<List<Habit>> loadHabits() async {
     await Future.delayed(const Duration(milliseconds: 200));
-    return habits;
+    return List.from(habits);
   }
 
   Future<void> addHabit(String title, String description) async {
@@ -17,18 +17,37 @@ class HabitLocalRepository {
   Future<void> toggleHabit(String id) async {
     final index = habits.indexWhere((h) => h.id == id);
     if (index != -1) {
-      final h = habits[index];
-      List<DateTime> dates = List.from(h.completedDates);
-      if (!h.completed) {
-        dates.add(DateTime.now());
+      final habit = habits[index];
+      final now = DateTime.now();
+      List<DateTime> updatedDates = List.from(habit.completedDates);
+
+      if (!habit.completed) {
+        updatedDates.add(now); // marca como completado hoy
       } else {
-        dates.removeLast();
+        // elimina la fecha de hoy si se desmarca
+        updatedDates.removeWhere((d) =>
+            d.year == now.year && d.month == now.month && d.day == now.day);
       }
-      habits[index] = h.copyWith(completed: !h.completed, completedDates: dates);
+
+      habits[index] = habit.copyWith(
+        completed: !habit.completed,
+        completedDates: updatedDates,
+      );
     }
   }
 
   Future<void> deleteHabit(String id) async {
     habits.removeWhere((h) => h.id == id);
+  }
+
+  Future<void> updateHabit(String id, String title, String description) async {
+    final index = habits.indexWhere((h) => h.id == id);
+    if (index != -1) {
+      final habit = habits[index];
+      habits[index] = habit.copyWith(
+        title: title,
+        description: description,
+      );
+    }
   }
 }
